@@ -7,129 +7,60 @@ using System;
 
 namespace Runner
 {
-    public class App : FlutterNUIApplication
+    public class App : NUIApplication
     {
         Timer timer;
+        int i = 0;
+
+        public override void Run(string[] args)
+        {
+            base.Run(args);
+        }
+
         protected override void OnCreate()
         {
+            base.OnCreate();
 
             Window window = NUIApplication.GetDefaultWindow();
-            // View root = new View()
-            // {
-            //     Size2D = new Size2D(1080, 1920),
-            //     BackgroundColor = Color.Red,
-            //     Layout = new LinearLayout()
-            //     {
-            //         LinearAlignment = LinearLayout.Alignment.Center,
-            //         LinearOrientation = LinearLayout.Orientation.Vertical,
-            //     }
-            // };
-            // window.Add(root);
-
-            View parent1 = new View()
-            {
-                Size2D = new Size2D(1920, 1080),
-                BackgroundColor = Color.Blue,
-                Layout = new LinearLayout()
-                {
-                    LinearAlignment = LinearLayout.Alignment.Begin,
-                    LinearOrientation = LinearLayout.Orientation.Horizontal,
-                }
-            };
-            // window.Add(parent1);
-
             // Only show a text button.
             Button textButton = new Button();
-
-            textButton.BackgroundImageBorder = new Rectangle(4, 4, 5, 5);
-            textButton.Size = new Size(350, 350);
+            textButton.Size = new Size(150, 150);
+            textButton.Position2D = new Position2D(10, 10);
             textButton.TextLabel.Text = "NUI text button";
+            textButton.Focusable = true;
 
-            parent1.Add(textButton);
-
-
-            // View parent2 = new View()
-            // {
-            //     BackgroundColor = Color.Green,
-            //     Size2D = new Size2D(420, 420),
-            //     Position = new Position(150, 725),
-            //     Layout = new LinearLayout()
-            //     {
-            //         LinearAlignment = LinearLayout.Alignment.Center,
-            //         LinearOrientation = LinearLayout.Orientation.Vertical,
-            //     }
-            // };
-            ImageView imageView = new ImageView("/opt/usr/globalapps/com.example.dali_sample2/shared/res/ic_launcher.png", true)
+            NUIFlutterView flutterView = new NUIFlutterView()
             {
-                Size2D = new Size2D(500, 500),
+                Size2D = new Size2D(640, 900),
+                Position2D = new Position2D(50, 300),
             };
-            parent1.Add(imageView);
-            window.Add(parent1);
 
-            NativeImageQueue queue = new NativeImageQueue(350, 350, NativeImageQueue.ColorFormat.RGBA8888);
-            Type typ = typeof(NativeImageQueue).BaseType.BaseType.BaseType;
-            FieldInfo type = typ.GetField("swigCPtr", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            System.Runtime.InteropServices.HandleRef value = (System.Runtime.InteropServices.HandleRef)type?.GetValue(queue);
-            ImageUrl url = queue.GenerateUrl();
-            Tizen.Log.Debug("BBR", "url : " + url.ToString());
-            // imageView.SetImage(url.ToString());
-            // flutter setup
-            WindowWidth = 350;
-            WindowHeight = 350;
-            RenderTarget = value.Handle;
+            if (flutterView.RunEngine())
+            {
+                GeneratedPluginRegistrant.RegisterPlugins(flutterView.Engine);
+                window.Add(flutterView);
+            }
 
-            base.OnCreate();
-            GeneratedPluginRegistrant.RegisterPlugins(this);
+            window.Add(textButton);
 
-            // var a = new FluttreView(value.Handle);
             textButton.Clicked += (o, e) =>
             {
-                Tizen.Log.Debug("BBR", "Clicked!!!!");
-                imageView.SetImage(url.ToString());
-                window.KeepRendering(1);
+                if (i == 0)
+                {
+                    flutterView.Resize(200, 500);
+                    i = 1;
+                }
+                else if (i == 1)
+                {
+                    flutterView.Resize(640, 300);
+                    i = 2;
+                }
+                else if (i == 2)
+                {
+                    flutterView.Resize(640, 900);
+                    i = 0;
+                }
             };
-
-            timer = new Timer(1000);
-            timer.Tick += (obj, e) =>
-            {
-                Tizen.Log.Debug("BBR", "Tick!!!!");
-                window.KeepRendering(1);
-                return true;
-            };
-            timer.Start();
-
-            // System.Timers.Timer timer = new System.Timers.Timer(1000);
-            // timer.Elapsed += (obj, e) =>
-            // {
-            //     Tizen.Log.Debug("BBR", "Tick!!!!");
-            //     window.KeepRendering(1);
-            // };
-            // timer.Start();
-
-            imageView.TouchEvent += (obj, e) =>
-            {
-                Tizen.Log.Debug("BBR", "ImageView Touched[" + e.Touch.GetState(0).ToString() + "]");
-                Tizen.Log.Debug("BBR", "X[" + e.Touch.GetLocalPosition(0).X + "] " + "Y[" + e.Touch.GetLocalPosition(0).Y + "]");
-                Tizen.Log.Debug("BBR", "time[" + e.Touch.GetTime().ToString() + "]");
-                Tizen.Log.Debug("BBR", "device id[" + e.Touch.GetDeviceId(0).ToString() + "]");
-                Tizen.Log.Debug("BBR", "pointCount[" + e.Touch.GetPointCount().ToString() + "]");
-                OnTouchTest(e);
-                return false;
-
-            };
-            // try {
-            //     NativeImageQueue queue = new NativeImageQueue(350, 350, NativeImageQueue.ColorFormat.RGBA8888);
-            //     Type typ = typeof(NativeImageQueue).BaseType.BaseType.BaseType;
-            //     FieldInfo type = typ.GetField("swigCPtr", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            //     // IntPtr value = IntPtr.Zero;
-            //     // value = (IntPtr)type?.GetValue(queue);
-            //     global::System.Runtime.InteropServices.HandleRef value = (global::System.Runtime.InteropServices.HandleRef)type?.GetValue(queue);
-            //     Tizen.Log.Debug("BBR", "value :" + value.Handle.ToString());
-            //     Tizen.Log.Debug("BBR", "url :" + queue.GenerateUrl().ToString());
-            // } catch (Exception e ) {
-            //     Tizen.Log.Debug("BBR", e.ToString());
-            // }
-
         }
 
         static void Main(string[] args)
