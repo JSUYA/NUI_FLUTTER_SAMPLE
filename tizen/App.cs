@@ -2,14 +2,11 @@
 using Tizen.NUI;
 using Tizen.NUI.BaseComponents;
 using Tizen.NUI.Components;
-using System.Reflection;
-using System;
 
 namespace Runner
 {
     public class App : NUIApplication
     {
-        Timer timer;
         int i = 0;
 
         public override void Run(string[] args)
@@ -22,45 +19,62 @@ namespace Runner
             base.OnCreate();
 
             Window window = NUIApplication.GetDefaultWindow();
-            // Only show a text button.
-            Button textButton = new Button();
-            textButton.Size = new Size(150, 150);
-            textButton.Position2D = new Position2D(10, 10);
-            textButton.TextLabel.Text = "NUI text button";
-            textButton.Focusable = true;
-
-            NUIFlutterView flutterView = new NUIFlutterView()
+            View rootView = new View()
             {
-                Size2D = new Size2D(640, 900),
-                Position2D = new Position2D(50, 300),
+                WidthSpecification = LayoutParamPolicies.MatchParent,
+                HeightSpecification = LayoutParamPolicies.MatchParent,
+                Layout = new LinearLayout() { LinearOrientation = LinearLayout.Orientation.Vertical }
             };
 
+            Button textButton = new Button();
+            textButton.Size = new Size(300, 200);
+            textButton.Position2D = new Position2D(400, 10);
+            textButton.TextLabel.Text = "Change view size";
+            rootView.Add(textButton);
+            NUIFlutterView flutterView = new NUIFlutterView()
+            {
+                //Relative Layout
+                WidthSpecification = LayoutParamPolicies.MatchParent,
+                HeightSpecification = LayoutParamPolicies.MatchParent,
+
+                // or Size2D = new Size2D(300, 200)
+            };
             if (flutterView.RunEngine())
             {
                 GeneratedPluginRegistrant.RegisterPlugins(flutterView.Engine);
-                window.Add(flutterView);
+                rootView.Add(flutterView);
             }
 
-            window.Add(textButton);
-
             textButton.Clicked += (o, e) =>
-            {
-                if (i == 0)
-                {
-                    flutterView.Resize(200, 500);
-                    i = 1;
-                }
-                else if (i == 1)
-                {
-                    flutterView.Resize(640, 300);
-                    i = 2;
-                }
-                else if (i == 2)
-                {
-                    flutterView.Resize(640, 900);
-                    i = 0;
-                }
-            };
+                    {
+                        if (i == 0)
+                        {
+                            flutterView.Resize(200, 500);
+                            i = 1;
+                        }
+                        else if (i == 1)
+                        {
+                            flutterView.Resize(640, 300);
+                            i = 2;
+                        }
+                        else if (i == 2)
+                        {
+                            flutterView.Resize(640, 900);
+                            textButton.TextLabel.Text = "Add button";
+                            i = 3;
+                        }
+                        else if (i == 3)
+                        {
+                            i = 0;
+                            textButton.TextLabel.Text = "Change view size";
+                            Button btn = new Button();
+                            btn.TextLabel.Text = "Test Button";
+                            rootView.Add(btn);
+                        }
+
+                    };
+
+            window.Add(rootView);
         }
 
         static void Main(string[] args)
